@@ -55,6 +55,7 @@ const app = express()
 const signup = require('./server/routes/signup')
 const login = require('./server/routes/login')
 const user = require('./server/routes/user')
+const binance = require('./server/routes/binance')
 
 connectMongoose(MONGO_URI)
 
@@ -69,6 +70,7 @@ passport.use('login-github', githubStrategy)
 app.use('/api/signup', signup)
 app.use('/api/login', login)
 app.use('/api/user', user)
+app.use('/api/binance', binance)
 app.use('/public', express.static('./public'))
 
 /**

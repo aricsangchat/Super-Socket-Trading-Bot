@@ -69,18 +69,18 @@ class LoginForm extends Component {
           value={this.state.email}
           validationError={this.state.validationErrors.email}
         />
-          <Input
-            label='Password'
-            type='password'
-            name='password'
-            onChange={this.onChangeHandler}
-            onBlur={this.onBlurHandler}
-            value={this.state.password}
-            validationError={this.state.validationErrors.password}
+        <Input
+          label='Password'
+          type='password'
+          name='password'
+          onChange={this.onChangeHandler}
+          onBlur={this.onBlurHandler}
+          value={this.state.password}
+          validationError={this.state.validationErrors.password}
         />
-          <button type='submit' className='btn btn-primary'>
+        <button type='submit' className='btn btn-primary'>
           Submit
-          </button>
+        </button>
       </form>
     )
   }

@@ -34,21 +34,21 @@ class GitHubAccountSettings extends Component {
             onChange={this.props.onChangeHandler}
             validationError={this.props.validationErrors.newUsername}
           />
-            <button
-              disabled={!this.props.isValid}
-              type='submit'
-              className='btn btn-primary'
-              role='button'
+          <button
+            disabled={!this.props.isValid}
+            type='submit'
+            className='btn btn-primary'
+            role='button'
           >
             Submit Changes
-            </button>
+          </button>
         </form>
 
-          <p className='AccountSettings-delete-link text-center'>
-            <a href='#' data-toggle='modal' data-target='#deleteAccountModal'>
-            Delete Account
-            </a>
-          </p>
+        <p className='AccountSettings-delete-link text-center'>
+          <a href='#' data-toggle='modal' data-target='#deleteAccountModal'>
+          Delete Account
+          </a>
+        </p>
       </div>
     )
   }
