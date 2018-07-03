@@ -32,4 +32,16 @@ router.get('/get-all-tickers', (req, res) => {
   })
 })
 
+router.post('/close-web-socket', (req, res) => {
+  // console.log(req.body.params.ticker)
+  let endpoints = binance.websockets.subscriptions()
+  for (let endpoint in endpoints) {
+    if (endpoint.includes(req.body.params.ticker.toLowerCase())) {
+      // console.log(endpoint)
+      binance.websockets.terminate(endpoint)
+      res.status(200)
+    }
+  }
+})
+
 module.exports = router

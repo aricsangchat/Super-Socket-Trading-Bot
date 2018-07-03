@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { string, func, bool } from 'prop-types'
+import { string, func } from 'prop-types'
 import { connect } from 'react-redux'
 
 class Switch extends Component {
@@ -15,7 +15,9 @@ class Switch extends Component {
       checked: !this.state.checked
     })
     if (!this.state.checked) {
-      this.props.handleChange(this.props.ticker)
+      this.props.handleChangeOn(this.props.ticker)
+    } else {
+      this.props.handleChangeOff(this.props.ticker)
     }
   }
 
@@ -45,9 +47,9 @@ class Switch extends Component {
 Switch.propTypes = {
   id: string,
   title: string,
-  handleChange: func,
-  ticker: string,
-  renderPlotly: bool
+  handleChangeOn: func,
+  handleChangeOff: func,
+  ticker: string
 }
 
 const mapStateToProps = state => {

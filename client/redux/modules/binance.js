@@ -9,6 +9,7 @@ const DEFAULT_STATE = {
 // ******* Action Types *******
 
 const GET_TICKERS = 'GET_TICKERS'
+const CLOSE_SOCKETS = 'CLOSE_SOCKETS'
 
 // ******* Action Creators & Reducers *******
 
@@ -74,6 +75,29 @@ function getTickerIndicatorReducer (state, action) {
         ...state.indicatorData.slice(index + 1) // everything after current post
       ]
     }
+  }
+}
+
+export function closeSocketRequest (ticker) {
+  return dispatch => {
+    return axios.post(`/api/binance/close-web-socket`, {
+      params: {
+        ticker: ticker
+      }
+    }).then(res => {
+    })
+  }
+}
+
+export function engageRequest (ticker) {
+  return dispatch => {
+    dispatch({ type: 'server/engageRequest', data: ticker })
+  }
+}
+
+export function changeSpeed (ticker) {
+  return dispatch => {
+    dispatch({ type: 'server/changeSpeed', data: ticker })
   }
 }
 
