@@ -1,0 +1,113 @@
+.switch {
+  background-color: transparent;
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 auto;
+  height: 24px;
+  margin: 0 0 10px;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  width: 56px;
+}
+.switch__label {
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.switch__input {
+  opacity: 0;
+}
+.switch__input:checked ~ .switch__text {
+  background: #5ed37a;
+}
+.switch__input:checked ~ .switch__text:before {
+  opacity: 0;
+  transform: translateX(200%);
+}
+.switch__input:checked ~ .switch__text:after {
+  opacity: 1;
+  transform: translateX(0);
+}
+.switch__input:checked ~ .switch__handle {
+  transform: translateX(32px);
+}
+.switch__text {
+  background-color: #e5e5e5;
+  border-radius: 50px;
+  box-sizing: border-box;
+  display: block;
+  flex: 0 0 auto;
+  height: 24px;
+  margin: 0;
+  position: absolute;
+  top: 0;
+  width: 56px;
+}
+.switch__text:before, .switch__text:after {
+  color: SlateGrey;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 25px;
+  position: absolute;
+  transition: all 0.2s ease-in-out;
+  transition-property: transform;
+}
+.switch__text:before {
+  content: attr(data-off);
+  right: 8px;
+  transform: translateX(0);
+}
+.switch__text:after {
+  color: white;
+  content: attr(data-on);
+  left: 9px;
+  opacity: 0;
+  transform: translateX(-200%);
+}
+.switch__handle {
+  background-color: white;
+  border-radius: 18px;
+  display: block;
+  height: 20px;
+  margin: 2px;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  transition: all 0.2s ease-in-out;
+  transition-property: transform;
+  width: 20px;
+}
+.switch--large {
+  height: 30px;
+  width: 70px;
+}
+.switch--large .switch__input:checked ~ .switch__handle {
+  transform: translateX(40px);
+}
+.switch--large .switch__text {
+  height: 30px;
+  width: 70px;
+}
+.switch--large .switch__text:before, .switch--large .switch__text:after {
+  font-size: 14px;
+  line-height: 30px;
+  position: absolute;
+}
+.switch--large .switch__text:before {
+  right: 10px;
+}
+.switch--large .switch__text:after {
+  left: 12px;
+}
+.switch--large .switch__handle {
+  height: 26px;
+  width: 26px;
+}
+.switch--no-text .switch__text:before, .switch--no-text .switch__text:after {
+  display: none;
+}
+.switch--success .switch__input:checked ~ .switch__text {
+  background: #5ed37a;
+}

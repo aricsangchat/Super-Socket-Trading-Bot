@@ -44,27 +44,35 @@ const MONGO_URI =
     : config.mongoUriDev
 
 const express = require('express')
-const helmet = require('helmet')
+// const helmet = require('helmet')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const localStrategy = require('./server/passport/localStrategy')
 const githubStrategy = require('./server/passport/githubStrategy')
 const PORT = process.env.PORT || config.expressPort
 const app = express()
+const http = require('http').Server(app)
+const socketio = require('socket.io')
+const io = socketio()
 
 const signup = require('./server/routes/signup')
 const login = require('./server/routes/login')
 const user = require('./server/routes/user')
 const binance = require('./server/routes/binance')
+const { getChartData } = require('./server/socket/actions')
 
 connectMongoose(MONGO_URI)
 
 // Middleware
-app.use(helmet())
+// app.use(helmet())
 app.use(bodyParser.json())
 app.use(passport.initialize())
 passport.use('local-login', localStrategy)
 passport.use('login-github', githubStrategy)
+
+// Socket.io Setup & Actions
+io.attach(http)
+getChartData(io)
 
 // Routes
 app.use('/api/signup', signup)
@@ -98,4 +106,4 @@ app.use((req, res) => {
 })
 console.log('node environment:', process.env.NODE_ENV)
 console.log(`express: Listening on port ${PORT}`)
-app.listen(PORT)
+http.listen(PORT)

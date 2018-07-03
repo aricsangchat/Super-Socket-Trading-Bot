@@ -5,7 +5,7 @@ const binance = require('./lib/binanceConnect.js')
 /**
  * GET '/api/binance/get-all-tickers'
  *
- * Gets a logged in user's username, email, password
+ * Gets the latest price of all tickers
  */
 
 router.get('/get-all-tickers', (req, res) => {
@@ -18,7 +18,17 @@ router.get('/get-all-tickers', (req, res) => {
         }
       })
     }
-    res.json(tickers)
+
+    let usdtArr = []
+
+    for (const prop in tickers) {
+      if (prop.includes('USDT')) {
+        usdtArr.push(prop)
+      }
+      // console.log(`obj.${prop} = ${tickers[prop]}`)
+    }
+
+    res.json(usdtArr)
   })
 })
 

@@ -3,6 +3,7 @@
 @import "Common/_FlashMessage.css";
 @import "NavBar/_NavBar.css";
 @import "Account/_AccountSettings.css";
+@import "MemberPage/_Switch.css";
 
 body {
   background-color: #7FDBFF;

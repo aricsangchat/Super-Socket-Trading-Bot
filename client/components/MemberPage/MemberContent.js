@@ -1,15 +1,56 @@
-import React from 'react'
-import { string } from 'prop-types'
+/* eslint-disable react/no-unused-prop-types */
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import {
+  getTickersRequest,
+  getTickerChartRequest
+} from '../../redux/modules/binance'
+import { string, func, object } from 'prop-types'
+import TickerList from './TickerList.js'
 
-const MemberContent = ({ username }) => (
-  <div>
-    <h1 className='text-center page-title'>Members Only</h1>
-    <h2 className='text-center'>Hi, {username}!</h2>
-  </div>
-)
+class MemberContent extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+    }
+  }
 
+  componentWillMount () {
+    this.props.dispatchGetTickers()
+  }
+
+  render () {
+    return (
+      <div>
+        <h1 className='text-center page-title'>Members Only</h1>
+        <h2 className='text-center'>Hi, {this.props.username}!</h2>
+        <TickerList tickers={this.props.binance.tickers} dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest} />
+      </div>
+    )
+  }
+}
 MemberContent.propTypes = {
-  username: string
+  username: string,
+  dispatchGetTickers: func,
+  binance: object,
+  dispatchGetTickerChartRequest: func
 }
 
-export default MemberContent
+const mapStateToProps = state => {
+  return {
+    binance: state.binance
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    dispatchGetTickers () {
+      dispatch(getTickersRequest())
+    },
+    dispatchGetTickerChartRequest (ticker) {
+      dispatch(getTickerChartRequest(ticker))
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MemberContent)
