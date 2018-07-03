@@ -2,7 +2,8 @@ import axios from 'axios'
 
 const DEFAULT_STATE = {
   tickers: [],
-  chartData: []
+  chartData: [],
+  indicatorData: []
 }
 
 // ******* Action Types *******
@@ -38,7 +39,8 @@ function getTickerChartReducer (state, action) {
   if (index === -1) {
     return {
       tickers: [...state.tickers],
-      chartData: state.chartData.concat(action.data)
+      chartData: state.chartData.concat(action.data),
+      indicatorData: [...state.indicatorData]
     }
   } else {
     return {
@@ -47,6 +49,29 @@ function getTickerChartReducer (state, action) {
         ...state.chartData.slice(0, index), // everything before current post
         action.data,
         ...state.chartData.slice(index + 1) // everything after current post
+      ],
+      indicatorData: [...state.indicatorData]
+    }
+  }
+}
+
+function getTickerIndicatorReducer (state, action) {
+  const copy = state.chartData
+  const index = copy.findIndex(obj => obj.name === action.data.name)
+  if (index === -1) {
+    return {
+      tickers: [...state.tickers],
+      chartData: [...state.chartData],
+      indicatorData: state.indicatorData.concat(action.data)
+    }
+  } else {
+    return {
+      tickers: [...state.tickers],
+      chartData: [...state.chartData],
+      indicatorData: [
+        ...state.indicatorData.slice(0, index), // everything before current post
+        action.data,
+        ...state.indicatorData.slice(index + 1) // everything after current post
       ]
     }
   }
@@ -58,6 +83,8 @@ export default function binance (state = DEFAULT_STATE, action) {
     return getTickersReducer(state, action)
   case 'CLIENT_GET_TICKER_CHART':
     return getTickerChartReducer(state, action)
+  case 'CLIENT_GET_INDICATOR_CHART':
+    return getTickerIndicatorReducer(state, action)
   default:
     return state
   }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { string, func, bool } from 'prop-types'
 import { connect } from 'react-redux'
-import PlotlyChart from './PlotlyChart'
 
 class Switch extends Component {
   constructor (props) {
@@ -17,12 +16,6 @@ class Switch extends Component {
     })
     if (!this.state.checked) {
       this.props.handleChange(this.props.ticker)
-    }
-  }
-
-  renderPlotly () {
-    if (this.props.renderPlotly && this.state.checked) {
-      return <PlotlyChart id={`${this.props.ticker}-plotly`} ticker={this.props.ticker} />;
     }
   }
 
@@ -44,7 +37,6 @@ class Switch extends Component {
             <span className='switch__handle' />
           </label>
         </div>
-        {this.renderPlotly()}
       </div>
     )
   }

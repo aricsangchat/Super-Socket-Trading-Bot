@@ -1,49 +1,44 @@
 import React, { Component } from 'react'
 import { string, object } from 'prop-types'
-import { connect } from 'react-redux'
 
-class PlotlyChart extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      data: []
-    }
-  }
+const PlotlyChart = props => {
 
-  renderPlot () {
-    const copy = this.props.binance.chartData
-    const element = document.getElementById(this.props.id)
+  function renderPlot () {
+    const chartDataCopy = props.binance.chartData
+    const indicatorDataCopy = props.binance.indicatorData
+    const element = document.getElementById(props.id)
     const chartLayout = { 
-      title: this.props.ticker + ' EMA',
+      title: props.id,
       aspectmode: 'cube'
     }
 
-    copy.map(chart => {
-      if (chart.name === this.props.ticker && chart.data[0].x.length > 999) {
-        return Plotly.react(element, chart.data, chartLayout)
-      }
-    })
+    if (props.type === 'ema') {
+      chartDataCopy.map(chart => {
+        if (chart.name === props.ticker && (chart.emaData[0].x.length > 999 && chart.hasOwnProperty('emaData'))) {
+          return Plotly.react(element, chart.emaData, chartLayout)
+        }
+      })
+    } else if (props.type === 'indicator') {
+      indicatorDataCopy.map(chart => {
+        if (chart.name === props.ticker && (chart.indicatorData[0].x.length > 999 && chart.hasOwnProperty('indicatorData'))) {
+          return Plotly.react(element, chart.indicatorData, chartLayout)
+        }
+      })
+    }
   }
 
-  render () {
-    return (
-      <div>
-        {this.renderPlot()}
-      </div>
-    )
-  }
+  return (
+    <div id={props.id}>
+      {renderPlot()}
+    </div>
+  )
 }
 
 PlotlyChart.propTypes = {
   id: string,
   ticker: string,
+  type: string,
   binance: object
 }
 
-const mapStateToProps = state => {
-  return {
-    binance: state.binance
-  }
-}
-
-export default connect(mapStateToProps, null)(PlotlyChart)
+export default PlotlyChart

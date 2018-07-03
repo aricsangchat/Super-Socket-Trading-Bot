@@ -24,7 +24,7 @@ class MemberContent extends Component {
       <div>
         <h1 className='text-center page-title'>Members Only</h1>
         <h2 className='text-center'>Hi, {this.props.username}!</h2>
-        <TickerList tickers={this.props.binance.tickers} dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest} />
+        <TickerList tickers={this.props.binance.tickers} dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest} binance={this.props.binance} />
       </div>
     )
   }
