@@ -3,7 +3,9 @@ import axios from 'axios'
 const DEFAULT_STATE = {
   tickers: [],
   chartData: [],
-  indicatorData: []
+  indicatorData: [],
+  log: [],
+  leftOverLog: []
 }
 
 // ******* Action Types *******
@@ -40,7 +42,9 @@ function getTickerChartReducer (state, action) {
     return {
       tickers: [...state.tickers],
       chartData: state.chartData.concat(action.data),
-      indicatorData: [...state.indicatorData]
+      indicatorData: [...state.indicatorData],
+      log: [...state.log],
+      leftOverLog: [...state.leftOverLog]
     }
   } else {
     return {
@@ -50,7 +54,9 @@ function getTickerChartReducer (state, action) {
         action.data,
         ...state.chartData.slice(index + 1) // everything after current post
       ],
-      indicatorData: [...state.indicatorData]
+      indicatorData: [...state.indicatorData],
+      log: [...state.log],
+      leftOverLog: [...state.leftOverLog]
     }
   }
 }
@@ -62,7 +68,9 @@ function getTickerIndicatorReducer (state, action) {
     return {
       tickers: [...state.tickers],
       chartData: [...state.chartData],
-      indicatorData: state.indicatorData.concat(action.data)
+      indicatorData: state.indicatorData.concat(action.data),
+      log: [...state.log],
+      leftOverLog: [...state.leftOverLog]
     }
   } else {
     return {
@@ -72,7 +80,9 @@ function getTickerIndicatorReducer (state, action) {
         ...state.indicatorData.slice(0, index), // everything before current post
         action.data,
         ...state.indicatorData.slice(index + 1) // everything after current post
-      ]
+      ],
+      log: [...state.log],
+      leftOverLog: [...state.leftOverLog]
     }
   }
 }
@@ -100,6 +110,58 @@ export function changeSpeed (ticker) {
   }
 }
 
+function botLogReducer (state, action) {
+  const copy = state.log
+  const index = copy.findIndex(obj => obj.name === action.data.name)
+  if (index === -1) {
+    return {
+      tickers: [...state.tickers],
+      chartData: [...state.chartData],
+      indicatorData: [...state.indicatorData],
+      log: state.log.concat(action.data),
+      leftOverLog: [...state.leftOverLog]
+    }
+  } else {
+    return {
+      tickers: [...state.tickers],
+      chartData: [...state.chartData],
+      indicatorData: [...state.indicatorData],
+      log: [
+        ...state.log.slice(0, index), // everything before current post
+        action.data,
+        ...state.log.slice(index + 1) // everything after current post
+      ],
+      leftOverLog: [...state.leftOverLog]
+    }
+  }
+}
+
+function leftOverLogReducer (state, action) {
+  const copy = state.leftOverLog
+  const index = copy.findIndex(obj => obj.name === action.data.name)
+  if (index === -1) {
+    return {
+      tickers: [...state.tickers],
+      chartData: [...state.chartData],
+      indicatorData: [...state.indicatorData],
+      log: [...state.log],
+      leftOverLog: state.leftOverLog.concat(action.data)
+    }
+  } else {
+    return {
+      tickers: [...state.tickers],
+      chartData: [...state.chartData],
+      indicatorData: [...state.indicatorData],
+      log: [...state.log],
+      leftOverLog: [
+        ...state.leftOverLog.slice(0, index), // everything before current post
+        action.data,
+        ...state.leftOverLog.slice(index + 1) // everything after current post
+      ]
+    }
+  }
+}
+
 export default function binance (state = DEFAULT_STATE, action) {
   switch (action.type) {
   case GET_TICKERS:
@@ -108,6 +170,10 @@ export default function binance (state = DEFAULT_STATE, action) {
     return getTickerChartReducer(state, action)
   case 'CLIENT_GET_INDICATOR_CHART':
     return getTickerIndicatorReducer(state, action)
+  case 'CLIENT_BOT_LOG':
+    return botLogReducer(state, action)
+  case 'CLIENT_LEFTOVER_LOG':
+    return leftOverLogReducer(state, action)
   default:
     return state
   }
