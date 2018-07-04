@@ -1,13 +1,13 @@
-import React, { Component } from 'react'
+/* eslint-disable no-undef */
+import React from 'react'
 import { string, object } from 'prop-types'
 
 const PlotlyChart = props => {
-
   function renderPlot () {
     const chartDataCopy = props.binance.chartData
     const indicatorDataCopy = props.binance.indicatorData
     const element = document.getElementById(props.id)
-    const chartLayout = { 
+    const chartLayout = {
       title: props.id,
       aspectmode: 'cube'
     }

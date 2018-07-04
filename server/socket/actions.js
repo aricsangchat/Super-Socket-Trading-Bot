@@ -10,22 +10,25 @@ const getChartData = (io) => {
     console.log('Socket connected: ' + socket.id)
     socket.on('action', (action) => {
       if (action.type === 'server/getChart') {
-        console.log('server/getChart', action.data)
-        bots[action.data] = bot
-        bots[action.data].start(io, socket, action)
-        // socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: action.data } })
+        if (!bots.hasOwnProperty(action.data)) {
+          bots[action.data] = new bot()
+          bots[action.data].start(io, socket, action)
+        } else {
+          bots[action.data].start(io, socket, action)
+        }
+        console.log('server/getChart', action.data, bots)
       } else if (action.type === 'server/engageRequest') {
-        bots[action.data] = bot
+        if (!bots.hasOwnProperty(action.data)) {
+          bots[action.data] = new bot()
+        }
+        bots[action.data].changeEngage(!bots[action.data].engage)
         console.log('server/engageRequest', action.data, bots)
-        bots[action.data].engage = !bots[action.data].engage
-        console.log(bots[action.data].engage)
-        // socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: action.data } })
       } else if (action.type === 'server/changeSpeed') {
-        bots[action.data] = bot
+        if (!bots.hasOwnProperty(action.data)) {
+          bots[action.data] = new bot()
+        }
+        bots[action.data].changeSpeed(!bots[action.data].speed)
         console.log('server/changeSpeed', action.data, bots)
-        bots[action.data].speed = !bots[action.data].speed
-        console.log(bots[action.data].speed)
-        // socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: action.data } })
       }
     })
   })
@@ -33,10 +36,16 @@ const getChartData = (io) => {
 
 module.exports = { getChartData }
 
-const bot = {
-  engage: false,
-  speed: false,
-  start: function (io, socket, action) {
+let bot = function () {
+  this.engage = false
+  this.speed = false
+  this.changeSpeed = function (speed) {
+    this.speed = speed
+  }
+  this.changeEngage = function (engage) {
+    this.engage = engage
+  }
+  this.start = function (io, socket, action) {
     let chartData = null
     let that = this
     binance.websockets.chart(action.data, '1m', (symbol, interval, chart) => {

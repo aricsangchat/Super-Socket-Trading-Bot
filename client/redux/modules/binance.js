@@ -9,7 +9,6 @@ const DEFAULT_STATE = {
 // ******* Action Types *******
 
 const GET_TICKERS = 'GET_TICKERS'
-const CLOSE_SOCKETS = 'CLOSE_SOCKETS'
 
 // ******* Action Creators & Reducers *******
 
