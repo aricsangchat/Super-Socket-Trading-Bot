@@ -9,9 +9,10 @@ import {
   changeSpeed
 } from '../../redux/modules/binance'
 import {
+  getCurrentUserRequest,
   changeUserTickerSettings
 } from '../../redux/modules/user'
-import { string, func, object } from 'prop-types'
+import { string, func, object, array } from 'prop-types'
 import TickerList from './TickerList.js'
 
 class MemberContent extends Component {
@@ -22,6 +23,7 @@ class MemberContent extends Component {
   }
 
   componentWillMount () {
+    this.props.dispatchGetCurrentUser()
     this.props.dispatchGetTickers()
   }
 
@@ -30,7 +32,16 @@ class MemberContent extends Component {
       <div>
         <h1 className='text-center page-title'>Members Only</h1>
         <h2 className='text-center'>Hi, {this.props.username}!</h2>
-        <TickerList tickers={this.props.binance.tickers} dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest} binance={this.props.binance} handleChangeOff={this.props.dispatchCloseSocketRequest} engageRequest={this.props.dispatchEngageRequest} changeSpeed={this.props.dispatchchangeSpeed} dispatchchangeUserTickerSettings={this.props.dispatchchangeUserTickerSettings} />
+        <TickerList
+          tickers={this.props.binance.tickers}
+          dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest}
+          binance={this.props.binance}
+          handleChangeOff={this.props.dispatchCloseSocketRequest}
+          engageRequest={this.props.dispatchEngageRequest}
+          changeSpeed={this.props.dispatchchangeSpeed}
+          dispatchchangeUserTickerSettings={this.props.dispatchchangeUserTickerSettings}
+          userSettings={this.props.userSettings}
+        />
       </div>
     )
   }
@@ -43,17 +54,23 @@ MemberContent.propTypes = {
   dispatchCloseSocketRequest: func,
   dispatchEngageRequest: func,
   dispatchchangeSpeed: func,
-  dispatchchangeUserTickerSettings: func
+  dispatchchangeUserTickerSettings: func,
+  dispatchGetCurrentUser: func,
+  userSettings: array
 }
 
 const mapStateToProps = state => {
   return {
-    binance: state.binance
+    binance: state.binance,
+    userSettings: state.user.settings
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
+    dispatchGetCurrentUser () {
+      dispatch(getCurrentUserRequest())
+    },
     dispatchGetTickers () {
       dispatch(getTickersRequest())
     },

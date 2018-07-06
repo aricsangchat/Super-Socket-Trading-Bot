@@ -1,16 +1,16 @@
 module.exports = {
-  setTradeSpeed: (speed) => {
+  setTradeSpeed: (speed, settings) => {
     if (speed) {
       return {
-        one: 99.90,
-        five: 99.70,
-        ten: 99.50
+        one: parseFloat(settings.aggressiveTier1),
+        five: parseFloat(settings.aggressiveTier2),
+        ten: parseFloat(settings.aggressiveTier3)
       }
     } else {
       return {
-        one: 99.00,
-        five: 98.90,
-        ten: 98.80
+        one: parseFloat(settings.conservativeTier1),
+        five: parseFloat(settings.conservativeTier2),
+        ten: parseFloat(settings.conservativeTier3)
       }
     }
   },

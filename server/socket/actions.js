@@ -29,6 +29,12 @@ const getChartData = (io) => {
         }
         bots[action.data].changeSpeed(!bots[action.data].speed)
         // console.log('server/changeSpeed', action.data, bots)
+      } else if (action.type === 'server/updateSettings') {
+        if (!bots.hasOwnProperty(action.data.ticker)) {
+          bots[action.data.ticker] = new bot()
+        }
+        bots[action.data.ticker].updateSettings(action.data.newSettings)
+        // console.log('server/changeSpeed', action.data, bots)
       }
     })
   })
@@ -63,6 +69,10 @@ let bot = function () {
     tier1MinProfit: '',
     tier2MinProfit: '',
     tier3MinProfit: ''
+  }
+  this.updateSettings = (newSettings) => {
+    this.settings = newSettings
+    console.log(this.settings)
   }
   this.changeSpeed = (speed) => {
     this.speed = speed
@@ -237,19 +247,19 @@ let bot = function () {
     let openOrders95 = []
 
     function handleBuySell (time, close, last, ticker, that, dataLength) {
-      let speed = helpers.setTradeSpeed(that.speed)
+      let speed = helpers.setTradeSpeed(that.speed, that.settings)
       // ***            *** \\
       //   Sell Settings    \\
       // ***            *** \\\
       if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'up' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'up' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] > 99)) {
         // sell openOrders 99
         that.orderTrend99.forEach((boughtOrder, i) => {
-          if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + 0.06) {
+          if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + parseFloat(that.settings.tier1MinProfit)) {
             closetrace6.x.push(time)
             closetrace6.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
             that.orderTrend99[i] = null
             if (that.engage === true) {
-              // binance.marketSell(ticker, 1)
+              // binance.marketSell(ticker, parseFloat(that.settings.tier1Qty))
               // placeSellOrder(close, 1)
             }
           }
@@ -264,14 +274,14 @@ let bot = function () {
 
         // sell openOrders 97
         that.orderTrend97.forEach((boughtOrder, i) => {
-          if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + 0.07) {
-            for (let index = 0; index < 5; index++) {
+          if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + parseFloat(that.settings.tier2MinProfit)) {
+            for (let index = 0; index < parseFloat(that.settings.tier2Qty); index++) {
               closetrace6.x.push(time)
               closetrace6.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
             }
             that.orderTrend97[i] = null
             if (that.engage === true) {
-              // binance.marketSell(ticker, 5)
+              // binance.marketSell(ticker, parseFloat(that.settings.tier2Qty))
               // placeSellOrder(close, 5)
             }
           }
@@ -286,14 +296,14 @@ let bot = function () {
 
         // sell openOrders 95
         that.orderTrend95.forEach((boughtOrder, i) => {
-          if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + 0.08) {
-            for (let index = 0; index < 10; index++) {
+          if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + parseFloat(that.settings.tier3MinProfit)) {
+            for (let index = 0; index < parseFloat(that.settings.tier3Qty); index++) {
               closetrace6.x.push(time)
               closetrace6.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
             }
             that.orderTrend95[i] = null
             if (that.engage === true) {
-              // binance.marketSell(ticker, 10)
+              // binance.marketSell(ticker, parseFloat(that.settings.tier3Qty))
               // placeSellOrder(close, 10)
             }
           }
@@ -311,43 +321,43 @@ let bot = function () {
       // ***            *** \\
       if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'up' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] < speed.one)) {
         // buy 1 qty
-        if (that.orderTrend99.length < 10) {
+        if (that.orderTrend99.length < parseFloat(that.settings.tier1MaxQty)) {
           that.orderTrend99.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
           closetrace5.x.push(time)
           closetrace5.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
 
           if (that.engage === true) {
-            // binance.marketBuy(ticker, 1)
+            // binance.marketBuy(ticker, parseFloat(that.settings.tier1Qty))
             // placeBuyOrder(close, 1)
           }
         }
       }
       if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'up' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] < speed.five)) {
         // buy 5 qty
-        if (that.orderTrend97.length < 4) {
+        if (that.orderTrend97.length < parseFloat(that.settings.tier2MaxQty) - 1) {
           that.orderTrend97.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
-          for (let index = 0; index < 5; index++) {
+          for (let index = 0; index < parseFloat(that.settings.tier2Qty); index++) {
             closetrace5.x.push(time)
             closetrace5.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
           }
 
           if (that.engage === true) {
-            // binance.marketBuy(ticker, 5)
+            // binance.marketBuy(ticker, parseFloat(that.settings.tier2Qty))
             // placeBuyOrder(close, 5)
           }
         }
       }
       if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'down' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] < speed.ten)) {
         // buy 10 qty
-        if (that.orderTrend95.length < 4) {
+        if (that.orderTrend95.length < parseFloat(that.settings.tier3MaxQty) - 1) {
           that.orderTrend95.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
-          for (let index = 0; index < 10; index++) {
+          for (let index = 0; index < parseFloat(that.settings.tier3Qty); index++) {
             closetrace5.x.push(time)
             closetrace5.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
           }
 
           if (that.engage === true) {
-            // binance.marketBuy(ticker, 10)
+            // binance.marketBuy(ticker, parseFloat(that.settings.tier3Qty))
             // placeBuyOrder(close, 10)
           }
         }

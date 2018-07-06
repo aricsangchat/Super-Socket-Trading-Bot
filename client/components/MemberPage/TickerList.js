@@ -18,7 +18,7 @@ const TickerList = props => {
               <Switch id={`${ticker}-speed`} title='Aggressive Mode' handleChangeOn={props.changeSpeed} handleChangeOff={props.changeSpeed} ticker={ticker} />
             </div>
             <div className='col-sm-12 col-md-6'>
-              <Settings dispatchchangeUserTickerSettings={props.dispatchchangeUserTickerSettings} ticker={ticker} />
+              <Settings dispatchchangeUserTickerSettings={props.dispatchchangeUserTickerSettings} ticker={ticker} userSettings={props.userSettings} />
             </div>
             <div className='col-sm-12 col-md-4'>
               <Log binance={props.binance} ticker={ticker} />
@@ -40,7 +40,8 @@ const TickerList = props => {
 
 TickerList.propTypes = {
   tickers: array,
-  handleChangeOff: func
+  handleChangeOff: func,
+  userSettings: array
 }
 
 export default TickerList

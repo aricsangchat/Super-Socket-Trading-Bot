@@ -13,7 +13,8 @@ const DEFAULT_STATE = {
   newEmail: {
     error: null,
     isUnique: null
-  }
+  },
+  settings: []
 }
 
 // ******* Action Types *******
@@ -25,6 +26,7 @@ const SET_USERNAME_UNIQUENESS_RESULT = 'SET_USERNAME_UNIQUENESS_RESULT'
 const SET_USERNAME_UNIQUENESS_ERROR = 'SET_USERNAME_UNIQUENESS_ERROR'
 const SET_EMAIL_UNIQUENESS_RESULT = 'SET_EMAIL_UNIQUENESS_RESULT'
 const SET_EMAIL_UNIQUENESS_ERROR = 'SET_EMAIL_UNIQUENESS_ERROR'
+const UPDATE_SETTINGS = 'UPDATE_SETTINGS'
 
 // ******* Action Creators & Reducers *******
 
@@ -68,7 +70,7 @@ export function getCurrentUser (user) {
   return { type: GET_USER, user }
 }
 function getCurrentUserReducer (state, action) {
-  return Object.assign({}, state, { userSettings: action.user })
+  return Object.assign({}, state, { userSettings: action.user.user, settings: action.user.settings })
 }
 
 export function changeUserIdentifiers (userData, currentUser) {
@@ -134,19 +136,19 @@ export function changeUserTickerSettings (ticker, newSettings) {
     ticker,
     newSettings
   }
-  debugger
   return dispatch => {
     return axios
       .put('/api/user/ticker-settings', data)
       .then(res => {
         if (res.data) {
-          debugger
           dispatch(
             displayFlashMessage({
               message: 'Settings Updated!',
               level: 'success'
             })
           )
+          dispatch({ type: 'server/updateSettings', data: { ticker, newSettings } })
+          return dispatch({ type: UPDATE_SETTINGS, settings: res.data })
         }
         return dispatch(
           displayFlashMessage({
@@ -165,6 +167,10 @@ export function changeUserTickerSettings (ticker, newSettings) {
         )
       })
   }
+}
+
+function changeUserTickerSettingsReducer (state, action) {
+  return Object.assign({}, state, { settings: action.settings })
 }
 
 export function changeGitHubUsername (newUsername) {
@@ -340,6 +346,8 @@ export default function user (state = DEFAULT_STATE, action) {
     return setEmailUniquenessResultReducer(state, action)
   case SET_EMAIL_UNIQUENESS_ERROR:
     return setEmailUniquenessErrorReducer(state, action)
+  case UPDATE_SETTINGS:
+    return changeUserTickerSettingsReducer(state, action)
   default:
     return state
   }

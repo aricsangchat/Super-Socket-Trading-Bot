@@ -22,7 +22,16 @@ const router = express.Router()
 
 router.get('/', authorize, (req, res) => {
   console.log('authorized user: ', req.currentUser)
-  res.json(req.currentUser)
+  User.findOne(
+    { _id: req.currentUser._id },
+  )
+    .then(doc => {
+      res.status(200).json({user: req.currentUser, settings: doc.settings})
+    })
+    .catch(err => {
+      console.error('Failed to get user:', err)
+      return res.status(500).json({ error: err })
+    })
 })
 
 /**
@@ -239,27 +248,59 @@ router.delete('/', authorize, (req, res) => {
 
 router.put('/ticker-settings', authorize, (req, res) => {
   const currentUser = req.currentUser
-  const body = req.body
-  const settings = req.body.newSettings
-  console.log( req.body)
-
-  User.findOneAndUpdate(
-    // { _id: currentUser._id },
-    // // { $set: {  "settings.$[<identifier>].field" : req.body.newSettings } },
-    // { $addToSet: { settings: { $each: [ body ] } } },
-    { _id: currentUser._id, "settings.ticker": req.body.ticker },
-    { $set: { "settings.$.newSettings" : req.body.newSettings } },
-    { upsert: true, new: true }
+  User.findOne(
+    { _id: currentUser._id },
   )
     .then(doc => {
-      // return { doc }
-      return res.json(doc)
+      let docCopy = doc
+      docCopy.settings = updateSetting(doc.settings, req.body)
+      findOneAndUpdate(currentUser._id, docCopy.settings, res)
+      // return res.json(doc)
     })
     .catch(err => {
       console.error('Failed to update settings:', err)
       return res.status(500).json({ error: err })
     })
-    
 })
+
+function updateSetting (settings, newSettings) {
+  let exists = false
+  settings.forEach((setting, i) => {
+    if (setting.ticker === newSettings.ticker) {
+      exists = true
+    }
+  })
+
+  if (settings.length === 0 || exists === false) {
+    settings.push(newSettings)
+    return settings
+  } else {
+    settings.forEach((setting, i) => {
+      if (setting.ticker === newSettings.ticker) {
+        settings[i] = newSettings
+      }
+    })
+    return settings
+  }
+}
+
+function findOneAndUpdate (id, newSettings, res) {
+  //console.log(newSettings)
+  User.findOneAndUpdate(
+    { _id: id },
+    { $set: { settings: newSettings } },
+    {
+      rawResult: true
+    }
+  )
+  .then(doc => {
+    console.log('replaced', doc)
+    return res.json(newSettings)
+  })
+  .catch(err => {
+    console.error('Failed to update settings:', err)
+    return res.status(500).json({ error: err })
+  })
+}
 
 module.exports = router
