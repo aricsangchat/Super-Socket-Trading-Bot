@@ -228,4 +228,38 @@ router.delete('/', authorize, (req, res) => {
     })
 })
 
+/**
+ * PUT '/api/user/ticker-settings'
+ *
+ * Updates a users ticker settings
+ *
+ * req.body's payload is an object containing the user's settings,
+ *
+ */
+
+router.put('/ticker-settings', authorize, (req, res) => {
+  const currentUser = req.currentUser
+  const body = req.body
+  const settings = req.body.newSettings
+  console.log( req.body)
+
+  User.findOneAndUpdate(
+    // { _id: currentUser._id },
+    // // { $set: {  "settings.$[<identifier>].field" : req.body.newSettings } },
+    // { $addToSet: { settings: { $each: [ body ] } } },
+    { _id: currentUser._id, "settings.ticker": req.body.ticker },
+    { $set: { "settings.$.newSettings" : req.body.newSettings } },
+    { upsert: true, new: true }
+  )
+    .then(doc => {
+      // return { doc }
+      return res.json(doc)
+    })
+    .catch(err => {
+      console.error('Failed to update settings:', err)
+      return res.status(500).json({ error: err })
+    })
+    
+})
+
 module.exports = router

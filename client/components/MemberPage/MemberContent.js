@@ -8,6 +8,9 @@ import {
   engageRequest,
   changeSpeed
 } from '../../redux/modules/binance'
+import {
+  changeUserTickerSettings
+} from '../../redux/modules/user'
 import { string, func, object } from 'prop-types'
 import TickerList from './TickerList.js'
 
@@ -27,7 +30,7 @@ class MemberContent extends Component {
       <div>
         <h1 className='text-center page-title'>Members Only</h1>
         <h2 className='text-center'>Hi, {this.props.username}!</h2>
-        <TickerList tickers={this.props.binance.tickers} dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest} binance={this.props.binance} handleChangeOff={this.props.dispatchCloseSocketRequest} engageRequest={this.props.dispatchEngageRequest} changeSpeed={this.props.dispatchchangeSpeed} />
+        <TickerList tickers={this.props.binance.tickers} dispatchGetTickerChartRequest={this.props.dispatchGetTickerChartRequest} binance={this.props.binance} handleChangeOff={this.props.dispatchCloseSocketRequest} engageRequest={this.props.dispatchEngageRequest} changeSpeed={this.props.dispatchchangeSpeed} dispatchchangeUserTickerSettings={this.props.dispatchchangeUserTickerSettings} />
       </div>
     )
   }
@@ -39,7 +42,8 @@ MemberContent.propTypes = {
   dispatchGetTickerChartRequest: func,
   dispatchCloseSocketRequest: func,
   dispatchEngageRequest: func,
-  dispatchchangeSpeed: func
+  dispatchchangeSpeed: func,
+  dispatchchangeUserTickerSettings: func
 }
 
 const mapStateToProps = state => {
@@ -64,6 +68,9 @@ const mapDispatchToProps = dispatch => {
     },
     dispatchchangeSpeed (ticker) {
       dispatch(changeSpeed(ticker))
+    },
+    dispatchchangeUserTickerSettings (ticker, newSettings) {
+      dispatch(changeUserTickerSettings(ticker, newSettings))
     }
   }
 }

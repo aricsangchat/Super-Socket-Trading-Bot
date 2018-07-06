@@ -1,5 +1,5 @@
 import React from 'react'
-import { array } from 'prop-types'
+import { object, string } from 'prop-types'
 
 const Log = props => {
   function renderProfitLog () {
@@ -7,18 +7,18 @@ const Log = props => {
       return props.binance.log.map(log => {
         if (log.name === props.ticker) {
           return (
-            <table key={log.name} className="table table-dark">
+            <table key={log.name} className='table table-dark'>
+              <thead>
+                <tr>
+                  <th scope='col'>Sold</th>
+                  <th scope='col'>Bought</th>
+                  <th scope='col'>Total</th>
+                </tr>
+              </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Total Bought</th>
-                  <td>{log.data.bought}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Total Sold</th>
                   <td>{log.data.sold}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Total</th>
+                  <td>{log.data.bought}</td>
                   <td>{log.data.total}</td>
                 </tr>
               </tbody>
@@ -26,33 +26,47 @@ const Log = props => {
           )
         }
       })
-    } else {return <div />}
+    } else { return <div /> }
   }
   function renderLeftOverLog () {
     if (props.binance.hasOwnProperty('leftOverLog')) {
       return props.binance.leftOverLog.map(log => {
         if (log.name === props.ticker) {
           return (
-            <table key={log.name} className="table table-dark">
+            <table key={log.name} className='table table-dark'>
+              <thead>
+                <tr>
+                  <th scope='col' />
+                  <th scope='col'>Count</th>
+                  <th scope='col'>Sum</th>
+                  <th scope='col'>Avg</th>
+                </tr>
+              </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Tier 1</th>
-                  <td>{log.data.tier1}</td>
+                  <th scope='row'>Tier 1</th>
+                  <td>{log.data.tier1Count}</td>
+                  <td>{log.data.tier1Sum}</td>
+                  <td>{log.data.tier1Avg}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Tier 2</th>
-                  <td>{log.data.tier2}</td>
+                  <th scope='row'>Tier 2</th>
+                  <td>{log.data.tier2Count}</td>
+                  <td>{log.data.tier2Sum}</td>
+                  <td>{log.data.tier2Avg}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Tier 3</th>
-                  <td>{log.data.tier3}</td>
+                  <th scope='row'>Tier 3</th>
+                  <td>{log.data.tier3Count}</td>
+                  <td>{log.data.tier3Sum}</td>
+                  <td>{log.data.tier3Avg}</td>
                 </tr>
               </tbody>
             </table>
           )
         }
       })
-    } else {return <div />}
+    } else { return <div /> }
   }
   return (
     <div>
@@ -63,7 +77,8 @@ const Log = props => {
 }
 
 Log.propTypes = {
-  data: array
+  binance: object,
+  ticker: string
 }
 
 export default Log

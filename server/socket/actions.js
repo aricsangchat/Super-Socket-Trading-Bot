@@ -8,6 +8,7 @@ const getChartData = (io) => {
   io.on('connection', function (socket) {
     console.log('Socket connected: ' + socket.id)
     socket.on('action', (action) => {
+      console.log('Socket connected: ' + socket.id)
       if (action.type === 'server/getChart') {
         if (!bots.hasOwnProperty(action.data)) {
           bots[action.data] = new bot()
@@ -15,19 +16,19 @@ const getChartData = (io) => {
         } else {
           bots[action.data].start(io, socket, action)
         }
-        console.log('server/getChart', action.data, bots)
+        // console.log('server/getChart', action.data, bots)
       } else if (action.type === 'server/engageRequest') {
         if (!bots.hasOwnProperty(action.data)) {
           bots[action.data] = new bot()
         }
         bots[action.data].changeEngage(!bots[action.data].engage)
-        console.log('server/engageRequest', action.data, bots)
+        // console.log('server/engageRequest', action.data, bots)
       } else if (action.type === 'server/changeSpeed') {
         if (!bots.hasOwnProperty(action.data)) {
           bots[action.data] = new bot()
         }
         bots[action.data].changeSpeed(!bots[action.data].speed)
-        console.log('server/changeSpeed', action.data, bots)
+        // console.log('server/changeSpeed', action.data, bots)
       }
     })
   })
@@ -46,6 +47,23 @@ let bot = function () {
   this.orderTrend99 = []
   this.orderTrend97 = []
   this.orderTrend95 = []
+  this.settings = {
+    tier1Qty: '',
+    tier2Qty: '',
+    tier3Qty: '',
+    tier1MaxQty: '',
+    tier2MaxQty: '',
+    tier3MaxQty: '',
+    conservativeTier1: '',
+    conservativeTier2: '',
+    conservativeTier3: '',
+    aggressiveTier1: '',
+    aggressiveTier2: '',
+    aggressiveTier3: '',
+    tier1MinProfit: '',
+    tier2MinProfit: '',
+    tier3MinProfit: ''
+  }
   this.changeSpeed = (speed) => {
     this.speed = speed
   }
@@ -61,6 +79,7 @@ let bot = function () {
       let last = chart[tick].close
       chartData = chart
       if (chart[tick].hasOwnProperty('isFinal') === false && i > 999) {
+        console.log('ran')
         graphEma(parseFloat(chart[tick].close), Date.now(), io, action.data, last, socket, that)
       }
       // io.emit('botLog', 'Engage: ' + this.engage)
@@ -137,18 +156,21 @@ let bot = function () {
         declareTrend(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, that)
       }
 
-      handleBuySell(time, close, last, ticker, that)
+      handleBuySell(time, close, last, ticker, that, closetrace1.x.length)
 
       let profit = {}
-      profit.bought = _.sum(closetrace5.y)
-      profit.sold = _.sum(closetrace6.y)
+      profit.bought = _.sum(closetrace5.y).toFixed(2)
+      profit.sold = _.sum(closetrace6.y).toFixed(2)
       profit.total = parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y))
+      profit.total = profit.total.toFixed(2)
       // console.log('Total Bought:', _.sum(closetrace5.y))
       // console.log('Total Sold:', _.sum(closetrace6.y))
       // console.log('Total Profit:', parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y)))
-      socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: profit } })
-      // io.emit('chart', closeData, ticker+'_Ema_Close')
-      socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: ticker, emaData: closeData } })
+      if (closetrace1.x.length > 999) {
+        socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: profit } })
+        // io.emit('chart', closeData, ticker+'_Ema_Close')
+        socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: ticker, emaData: closeData } })
+      }
     }
 
     function declareTrend (trace1, trace2, trace3, trace4, trace5, trace6, time, close, that) {
@@ -194,7 +216,9 @@ let bot = function () {
       declarePercentageTrend(percentageTrace2Trace4.y, that.orangePercentageTrend)
       declarePercentageTrend(percentageTrace3Trace4.y, that.greenPercentageTrend)
       // io.emit('chart', percentageData, ticker + '_Dip_Indicator')
-      socket.emit('action', { type: 'CLIENT_GET_INDICATOR_CHART', data: { name: ticker, indicatorData: percentageData } })
+      if (trace1.length > 999) {
+        socket.emit('action', { type: 'CLIENT_GET_INDICATOR_CHART', data: { name: ticker, indicatorData: percentageData } })
+      }
     }
 
     function declarePercentageTrend (trace, trend) {
@@ -212,7 +236,7 @@ let bot = function () {
     let openOrders97 = []
     let openOrders95 = []
 
-    function handleBuySell (time, close, last, ticker, that) {
+    function handleBuySell (time, close, last, ticker, that, dataLength) {
       let speed = helpers.setTradeSpeed(that.speed)
       // ***            *** \\
       //   Sell Settings    \\
@@ -329,13 +353,21 @@ let bot = function () {
         }
       }
       let leftOverLog = {}
-      leftOverLog.tier1 = that.orderTrend99
-      leftOverLog.tier2 = that.orderTrend97
-      leftOverLog.tier3 = that.orderTrend95
+      leftOverLog.tier1Sum = _.sum(that.orderTrend99).toFixed(2)
+      leftOverLog.tier1Avg = _.mean(that.orderTrend99).toFixed(2)
+      leftOverLog.tier1Count = that.orderTrend99.length 
+      leftOverLog.tier2Sum = _.sum(that.orderTrend97).toFixed(2)
+      leftOverLog.tier2Avg = _.mean(that.orderTrend97).toFixed(2)
+      leftOverLog.tier2Count = that.orderTrend97.length
+      leftOverLog.tier3Sum = _.sum(that.orderTrend95).toFixed(2)
+      leftOverLog.tier3Avg = _.mean(that.orderTrend95).toFixed(2)
+      leftOverLog.tier3Count = that.orderTrend95.length
       // console.log('Tier 1', that.orderTrend99)
       // console.log('Tier 2', that.orderTrend97)
       // console.log('Tier 3', that.orderTrend95)
-      socket.emit('action', { type: 'CLIENT_LEFTOVER_LOG', data: { name: ticker, data: leftOverLog } })
+      if (dataLength > 999) {
+        socket.emit('action', { type: 'CLIENT_LEFTOVER_LOG', data: { name: ticker, data: leftOverLog } })
+      }
     }
   }
 }

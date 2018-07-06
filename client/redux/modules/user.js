@@ -129,6 +129,44 @@ export function changeUserPassword (passwordData) {
   }
 }
 
+export function changeUserTickerSettings (ticker, newSettings) {
+  const data = {
+    ticker,
+    newSettings
+  }
+  debugger
+  return dispatch => {
+    return axios
+      .put('/api/user/ticker-settings', data)
+      .then(res => {
+        if (res.data) {
+          debugger
+          dispatch(
+            displayFlashMessage({
+              message: 'Settings Updated!',
+              level: 'success'
+            })
+          )
+        }
+        return dispatch(
+          displayFlashMessage({
+            message: 'Failed to update settings.',
+            level: 'error'
+          })
+        )
+      })
+      .catch(err => {
+        console.error('changeUserPassword failed:', err)
+        dispatch(
+          displayFlashMessage({
+            message: 'Failed to update password.',
+            level: 'error'
+          })
+        )
+      })
+  }
+}
+
 export function changeGitHubUsername (newUsername) {
   return dispatch => {
     return axios

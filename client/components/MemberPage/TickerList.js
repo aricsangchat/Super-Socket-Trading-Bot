@@ -3,6 +3,7 @@ import { array, func } from 'prop-types'
 import Switch from './Switch'
 import PlotlyChart from './PlotlyChart'
 import Log from './Log'
+import Settings from './Settings'
 
 const TickerList = props => {
   function renderTickers (tickers) {
@@ -10,14 +11,14 @@ const TickerList = props => {
       return (
         <div className='container' key={ticker}>
           <div className='row'>
-            <div className='col-sm-12 col-md-4'>
+            <div className='col-sm-12 col-md-2'>
               <h3>{ticker}</h3>
               <Switch id={`${ticker}-chart`} title='Get Chart' handleChangeOn={props.dispatchGetTickerChartRequest} handleChangeOff={props.handleChangeOff} ticker={ticker} renderPlotly />
               <Switch id={`${ticker}-engage`} title='Engage Trading' handleChangeOn={props.engageRequest} handleChangeOff={props.engageRequest} ticker={ticker} />
               <Switch id={`${ticker}-speed`} title='Aggressive Mode' handleChangeOn={props.changeSpeed} handleChangeOff={props.changeSpeed} ticker={ticker} />
             </div>
-            <div className='col-sm-12 col-md-4'>
-              <h4>More Settings</h4>
+            <div className='col-sm-12 col-md-6'>
+              <Settings dispatchchangeUserTickerSettings={props.dispatchchangeUserTickerSettings} ticker={ticker} />
             </div>
             <div className='col-sm-12 col-md-4'>
               <Log binance={props.binance} ticker={ticker} />

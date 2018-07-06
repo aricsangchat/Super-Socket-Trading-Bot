@@ -52,8 +52,8 @@ const githubStrategy = require('./server/passport/githubStrategy')
 const PORT = process.env.PORT || config.expressPort
 const app = express()
 const http = require('http').Server(app)
-const socketio = require('socket.io')
-const io = socketio()
+// const socketio = require('socket.io')
+// const io = socketio()
 
 const signup = require('./server/routes/signup')
 const login = require('./server/routes/login')
@@ -71,7 +71,18 @@ passport.use('local-login', localStrategy)
 passport.use('login-github', githubStrategy)
 
 // Socket.io Setup & Actions
-io.attach(http)
+// const server = require('http').createServer();
+
+const io = require('socket.io')(http, {
+  serveClient: false,
+  // below are engine.IO options
+  pingInterval: 60000,
+  pingTimeout: 30000,
+  cookie: false
+});
+
+// server.listen(4001);
+// io.attach(http)
 getChartData(io)
 
 // Routes
