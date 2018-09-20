@@ -6,7 +6,9 @@ import {
   getTickerChartRequest,
   closeSocketRequest,
   engageRequest,
-  changeSpeed
+  changeSpeed,
+  clearLeftOver,
+  changeBidAskMode
 } from '../../redux/modules/binance'
 import {
   getCurrentUserRequest,
@@ -41,6 +43,8 @@ class MemberContent extends Component {
           changeSpeed={this.props.dispatchchangeSpeed}
           dispatchchangeUserTickerSettings={this.props.dispatchchangeUserTickerSettings}
           userSettings={this.props.userSettings}
+          clearLeftOver={this.props.dispatchclearLeftOver}
+          dispatchChangeBidAskMode={this.props.dispatchChangeBidAskMode}
         />
       </div>
     )
@@ -56,7 +60,9 @@ MemberContent.propTypes = {
   dispatchchangeSpeed: func,
   dispatchchangeUserTickerSettings: func,
   dispatchGetCurrentUser: func,
-  userSettings: array
+  userSettings: array,
+  dispatchclearLeftOver: func,
+  dispatchChangeBidAskMode: func
 }
 
 const mapStateToProps = state => {
@@ -85,6 +91,12 @@ const mapDispatchToProps = dispatch => {
     },
     dispatchchangeSpeed (ticker) {
       dispatch(changeSpeed(ticker))
+    },
+    dispatchclearLeftOver (ticker) {
+      dispatch(clearLeftOver(ticker))
+    },
+    dispatchChangeBidAskMode (ticker) {
+      dispatch(changeBidAskMode(ticker))
     },
     dispatchchangeUserTickerSettings (ticker, newSettings) {
       dispatch(changeUserTickerSettings(ticker, newSettings))

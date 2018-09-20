@@ -16,6 +16,8 @@ const TickerList = props => {
               <Switch id={`${ticker}-chart`} title='Get Chart' handleChangeOn={props.dispatchGetTickerChartRequest} handleChangeOff={props.handleChangeOff} ticker={ticker} renderPlotly />
               <Switch id={`${ticker}-engage`} title='Engage Trading' handleChangeOn={props.engageRequest} handleChangeOff={props.engageRequest} ticker={ticker} />
               <Switch id={`${ticker}-speed`} title='Aggressive Mode' handleChangeOn={props.changeSpeed} handleChangeOff={props.changeSpeed} ticker={ticker} />
+              <Switch id={`${ticker}-bid-ask-mode`} title='Bid/Ask Mode' handleChangeOn={props.dispatchChangeBidAskMode} handleChangeOff={props.dispatchChangeBidAskMode} ticker={ticker} />
+              <button type='button' className='btn btn-primary btn-sm' onClick={() => props.clearLeftOver(ticker)}>Clear Left Over</button>
             </div>
             <div className='col-sm-12 col-md-6'>
               <Settings dispatchchangeUserTickerSettings={props.dispatchchangeUserTickerSettings} ticker={ticker} userSettings={props.userSettings} />

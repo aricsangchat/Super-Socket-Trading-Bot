@@ -14,13 +14,13 @@ const PlotlyChart = props => {
 
     if (props.type === 'ema') {
       chartDataCopy.map(chart => {
-        if (chart.name === props.ticker && (chart.emaData[0].x.length > 999 && chart.hasOwnProperty('emaData'))) {
+        if (chart.name === props.ticker && (chart.emaData[0].x.length > 499 && chart.hasOwnProperty('emaData'))) {
           return Plotly.react(element, chart.emaData, chartLayout)
         }
       })
     } else if (props.type === 'indicator') {
       indicatorDataCopy.map(chart => {
-        if (chart.name === props.ticker && (chart.indicatorData[0].x.length > 999 && chart.hasOwnProperty('indicatorData'))) {
+        if (chart.name === props.ticker && (chart.indicatorData[0].x.length > 499 && chart.hasOwnProperty('indicatorData'))) {
           return Plotly.react(element, chart.indicatorData, chartLayout)
         }
       })

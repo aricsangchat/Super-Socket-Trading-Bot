@@ -110,6 +110,18 @@ export function changeSpeed (ticker) {
   }
 }
 
+export function changeBidAskMode (ticker) {
+  return dispatch => {
+    dispatch({ type: 'server/changeBidAskMode', data: ticker })
+  }
+}
+
+export function clearLeftOver (ticker) {
+  return dispatch => {
+    dispatch({ type: 'server/clearLeftOver', data: ticker })
+  }
+}
+
 function botLogReducer (state, action) {
   const copy = state.log
   const index = copy.findIndex(obj => obj.name === action.data.name)

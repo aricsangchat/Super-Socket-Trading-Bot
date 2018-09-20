@@ -35,6 +35,8 @@ const getChartData = (io) => {
         }
         bots[action.data.ticker].updateSettings(action.data.newSettings)
         // console.log('server/changeSpeed', action.data, bots)
+      } else if (action.type === 'server/clearLeftOver') {
+        bots[action.data].clearLeftOver()
       }
     })
   })
@@ -45,6 +47,7 @@ module.exports = { getChartData }
 let bot = function () {
   this.engage = false
   this.speed = false
+  this.bidAskMode = false
   this.decimalPlace = 4
   this.trend = []
   this.bluePercentageTrend = []
@@ -53,6 +56,7 @@ let bot = function () {
   this.orderTrend99 = []
   this.orderTrend97 = []
   this.orderTrend95 = []
+  this.profit = {}
   this.settings = {
     tier1Qty: '',
     tier2Qty: '',
@@ -74,8 +78,16 @@ let bot = function () {
     this.settings = newSettings
     console.log(this.settings)
   }
+  this.clearLeftOver = () => {
+    this.orderTrend99 = []
+    this.orderTrend97 = []
+    this.orderTrend95 = []
+  }
   this.changeSpeed = (speed) => {
     this.speed = speed
+  }
+  this.changeBidAskMode = (bidAskMode) => {
+    this.bidAskMode = bidAskMode
   }
   this.changeEngage = (engage) => {
     this.engage = engage
@@ -88,7 +100,7 @@ let bot = function () {
       let tick = binance.last(chart)
       let last = chart[tick].close
       chartData = chart
-      if (chart[tick].hasOwnProperty('isFinal') === false && i > 999) {
+      if (chart[tick].hasOwnProperty('isFinal') === false && i > 499) {
         console.log('ran')
         graphEma(parseFloat(chart[tick].close), Date.now(), io, action.data, last, socket, that)
       }
@@ -168,16 +180,16 @@ let bot = function () {
 
       handleBuySell(time, close, last, ticker, that, closetrace1.x.length)
 
-      let profit = {}
-      profit.bought = _.sum(closetrace5.y).toFixed(2)
-      profit.sold = _.sum(closetrace6.y).toFixed(2)
-      profit.total = parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y))
-      profit.total = profit.total.toFixed(2)
+      that.profit.bought = _.sum(closetrace5.y).toFixed(2)
+      that.profit.sold = _.sum(closetrace6.y).toFixed(2)
+      that.profit.total = parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y))
+      that.profit.total = that.profit.total.toFixed(2)
       // console.log('Total Bought:', _.sum(closetrace5.y))
       // console.log('Total Sold:', _.sum(closetrace6.y))
       // console.log('Total Profit:', parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y)))
-      if (closetrace1.x.length > 999) {
-        socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: profit } })
+      console.log(closetrace1.x.length)
+      if (closetrace1.x.length > 499) {
+        socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: that.profit } })
         // io.emit('chart', closeData, ticker+'_Ema_Close')
         socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: ticker, emaData: closeData } })
       }
@@ -226,7 +238,7 @@ let bot = function () {
       declarePercentageTrend(percentageTrace2Trace4.y, that.orangePercentageTrend)
       declarePercentageTrend(percentageTrace3Trace4.y, that.greenPercentageTrend)
       // io.emit('chart', percentageData, ticker + '_Dip_Indicator')
-      if (trace1.length > 999) {
+      if (trace1.length > 499) {
         socket.emit('action', { type: 'CLIENT_GET_INDICATOR_CHART', data: { name: ticker, indicatorData: percentageData } })
       }
     }
@@ -259,7 +271,7 @@ let bot = function () {
             closetrace6.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
             that.orderTrend99[i] = null
             if (that.engage === true) {
-              // binance.marketSell(ticker, parseFloat(that.settings.tier1Qty))
+              binance.marketSell(ticker, parseFloat(that.settings.tier1Qty))
               // placeSellOrder(close, 1)
             }
           }
@@ -281,7 +293,7 @@ let bot = function () {
             }
             that.orderTrend97[i] = null
             if (that.engage === true) {
-              // binance.marketSell(ticker, parseFloat(that.settings.tier2Qty))
+              binance.marketSell(ticker, parseFloat(that.settings.tier2Qty))
               // placeSellOrder(close, 5)
             }
           }
@@ -303,7 +315,7 @@ let bot = function () {
             }
             that.orderTrend95[i] = null
             if (that.engage === true) {
-              // binance.marketSell(ticker, parseFloat(that.settings.tier3Qty))
+              binance.marketSell(ticker, parseFloat(that.settings.tier3Qty))
               // placeSellOrder(close, 10)
             }
           }
@@ -327,7 +339,7 @@ let bot = function () {
           closetrace5.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
 
           if (that.engage === true) {
-            // binance.marketBuy(ticker, parseFloat(that.settings.tier1Qty))
+            binance.marketBuy(ticker, parseFloat(that.settings.tier1Qty))
             // placeBuyOrder(close, 1)
           }
         }
@@ -342,7 +354,7 @@ let bot = function () {
           }
 
           if (that.engage === true) {
-            // binance.marketBuy(ticker, parseFloat(that.settings.tier2Qty))
+            binance.marketBuy(ticker, parseFloat(that.settings.tier2Qty))
             // placeBuyOrder(close, 5)
           }
         }
@@ -357,7 +369,7 @@ let bot = function () {
           }
 
           if (that.engage === true) {
-            // binance.marketBuy(ticker, parseFloat(that.settings.tier3Qty))
+            binance.marketBuy(ticker, parseFloat(that.settings.tier3Qty))
             // placeBuyOrder(close, 10)
           }
         }
@@ -366,16 +378,16 @@ let bot = function () {
       leftOverLog.tier1Sum = _.sum(that.orderTrend99).toFixed(2)
       leftOverLog.tier1Avg = _.mean(that.orderTrend99).toFixed(2)
       leftOverLog.tier1Count = that.orderTrend99.length 
-      leftOverLog.tier2Sum = _.sum(that.orderTrend97).toFixed(2)
+      leftOverLog.tier2Sum = _.sum(that.orderTrend97).toFixed(2) * that.settings.tier2Qty
       leftOverLog.tier2Avg = _.mean(that.orderTrend97).toFixed(2)
       leftOverLog.tier2Count = that.orderTrend97.length
-      leftOverLog.tier3Sum = _.sum(that.orderTrend95).toFixed(2)
+      leftOverLog.tier3Sum = _.sum(that.orderTrend95).toFixed(2) * that.settings.tier3Qty
       leftOverLog.tier3Avg = _.mean(that.orderTrend95).toFixed(2)
       leftOverLog.tier3Count = that.orderTrend95.length
       // console.log('Tier 1', that.orderTrend99)
       // console.log('Tier 2', that.orderTrend97)
       // console.log('Tier 3', that.orderTrend95)
-      if (dataLength > 999) {
+      if (dataLength > 499) {
         socket.emit('action', { type: 'CLIENT_LEFTOVER_LOG', data: { name: ticker, data: leftOverLog } })
       }
     }
