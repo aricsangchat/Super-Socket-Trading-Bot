@@ -27,7 +27,9 @@ const TickerList = props => {
             </div>
           </div>
           <div>
-            <PlotlyChart id={`${ticker}-ema-chart`} ticker={ticker} binance={props.binance} type='ema' />
+            <PlotlyChart id={`${ticker}-1m`} ticker={ticker} binance={props.binance} type='ema' />
+            <PlotlyChart id={`${ticker}-1h`} ticker={ticker} binance={props.binance} type='ema' />
+            <PlotlyChart id={`${ticker}-1d`} ticker={ticker} binance={props.binance} type='ema' />
             <PlotlyChart id={`${ticker}-indicator-chart`} ticker={ticker} binance={props.binance} type='indicator' />
           </div>
           <hr />

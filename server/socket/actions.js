@@ -12,26 +12,38 @@ const getChartData = (io) => {
       if (action.type === 'server/getChart') {
         if (!bots.hasOwnProperty(action.data)) {
           bots[action.data] = new bot()
-          bots[action.data].start(io, socket, action)
+          bots['onehour'] = new bot()
+          bots['oneday'] = new bot()
+          bots[action.data].start(io, socket, action, '1m')
+          bots['onehour'].start(io, socket, action, '1h')
+          bots['oneday'].start(io, socket, action, '1d')
         } else {
-          bots[action.data].start(io, socket, action)
+          bots[action.data].start(io, socket, action, '1m')
+          bots['onehour'].start(io, socket, action, '1h')
+          bots['oneday'].start(io, socket, action, '1d')
         }
         // console.log('server/getChart', action.data, bots)
       } else if (action.type === 'server/engageRequest') {
         if (!bots.hasOwnProperty(action.data)) {
           bots[action.data] = new bot()
+          bots['onehour'] = new bot()
+          bots['oneday'] = new bot()
         }
         bots[action.data].changeEngage(!bots[action.data].engage)
         // console.log('server/engageRequest', action.data, bots)
       } else if (action.type === 'server/changeSpeed') {
         if (!bots.hasOwnProperty(action.data)) {
           bots[action.data] = new bot()
+          bots['onehour'] = new bot()
+          bots['oneday'] = new bot()
         }
         bots[action.data].changeSpeed(!bots[action.data].speed)
         // console.log('server/changeSpeed', action.data, bots)
       } else if (action.type === 'server/updateSettings') {
         if (!bots.hasOwnProperty(action.data.ticker)) {
           bots[action.data.ticker] = new bot()
+          bots['onehour'] = new bot()
+          bots['oneday'] = new bot()
         }
         bots[action.data.ticker].updateSettings(action.data.newSettings)
         // console.log('server/changeSpeed', action.data, bots)
@@ -92,17 +104,17 @@ let bot = function () {
   this.changeEngage = (engage) => {
     this.engage = engage
   }
-  this.start = (io, socket, action) => {
+  this.start = (io, socket, action, chartInterval) => {
     let chartData = null
     let that = this
     let i = 0
-    binance.websockets.chart(action.data, '1m', (symbol, interval, chart) => {
+    binance.websockets.chart(action.data, chartInterval, (symbol, interval, chart) => {
       let tick = binance.last(chart)
       let last = chart[tick].close
       chartData = chart
       if (chart[tick].hasOwnProperty('isFinal') === false && i > 499) {
         console.log('ran')
-        graphEma(parseFloat(chart[tick].close), Date.now(), io, action.data, last, socket, that)
+        graphEma(parseFloat(chart[tick].close), Date.now(), io, action.data, last, socket, that, chartInterval)
       }
       // io.emit('botLog', 'Engage: ' + this.engage)
       // io.emit('botLog', 'Speed: ' + that.speed)
@@ -111,7 +123,7 @@ let bot = function () {
     let timeOut = setTimeout(function () {
       Object.keys(chartData).map(function (key) {
         i++
-        graphEma(parseFloat(chartData[key].close), parseFloat(key), io, action.data, null, socket, that)
+        graphEma(parseFloat(chartData[key].close), parseFloat(key), io, action.data, null, socket, that, chartInterval)
       })
     }, 4000)
 
@@ -152,7 +164,7 @@ let bot = function () {
       name: 'Sell'
     }
 
-    function graphEma (close, time, io, ticker, last, socket, that) {
+    function graphEma (close, time, io, ticker, last, socket, that, chartInterval) {
       let closeData = [ closetrace1, closetrace2, closetrace3, closetrace4, closetrace5, closetrace6 ]
       if (closetrace1.x.length > 2) {
         closetrace1.x.push(time)
@@ -189,9 +201,9 @@ let bot = function () {
       // console.log('Total Profit:', parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y)))
       console.log(closetrace1.x.length)
       if (closetrace1.x.length > 499) {
-        socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: that.profit } })
+        //socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: that.profit } })
         // io.emit('chart', closeData, ticker+'_Ema_Close')
-        socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: ticker, emaData: closeData } })
+        socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: `${ticker}-${chartInterval}`, emaData: closeData } })
       }
     }
 
