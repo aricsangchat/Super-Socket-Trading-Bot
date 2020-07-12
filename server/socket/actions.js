@@ -6,49 +6,54 @@ let bots = {}
 
 const getChartData = (io) => {
   io.on('connection', function (socket) {
-    console.log('Socket connected: ' + socket.id)
+    // console.log('Socket connected: ' + socket.id)
     socket.on('action', (action) => {
-      console.log('Socket connected: ' + socket.id)
+      // console.log('Socket connected: ' + socket.id)
       if (action.type === 'server/getChart') {
-        if (!bots.hasOwnProperty(action.data)) {
-          bots[action.data] = new bot()
+        console.log(action.data)
+        if (!bots.hasOwnProperty('oneminute')) {
+          bots['oneminute'] = new bot()
           bots['onehour'] = new bot()
           bots['oneday'] = new bot()
-          bots[action.data].start(io, socket, action, '1m')
+          bots['oneminute'].start(io, socket, action, '1m')
           bots['onehour'].start(io, socket, action, '1h')
-          bots['oneday'].start(io, socket, action, '1d')
+          bots['oneday'].start(io, socket, action, '4h')
         } else {
-          bots[action.data].start(io, socket, action, '1m')
+          bots['oneminute'].start(io, socket, action, '1m')
           bots['onehour'].start(io, socket, action, '1h')
-          bots['oneday'].start(io, socket, action, '1d')
+          bots['oneday'].start(io, socket, action, '4h')
         }
         // console.log('server/getChart', action.data, bots)
       } else if (action.type === 'server/engageRequest') {
-        if (!bots.hasOwnProperty(action.data)) {
-          bots[action.data] = new bot()
+        if (!bots.hasOwnProperty('oneminute')) {
+          bots['oneminute'] = new bot()
           bots['onehour'] = new bot()
           bots['oneday'] = new bot()
         }
-        bots[action.data].changeEngage(!bots[action.data].engage)
+        bots['oneminute'].changeEngage(!bots[action.data].engage)
         // console.log('server/engageRequest', action.data, bots)
       } else if (action.type === 'server/changeSpeed') {
-        if (!bots.hasOwnProperty(action.data)) {
-          bots[action.data] = new bot()
+        if (!bots.hasOwnProperty('oneminute')) {
+          bots['oneminute'] = new bot()
           bots['onehour'] = new bot()
           bots['oneday'] = new bot()
         }
-        bots[action.data].changeSpeed(!bots[action.data].speed)
+        bots['oneminute'].changeSpeed(!bots['oneminute'].speed)
+        bots['onehour'].changeSpeed(!bots['onehour'].speed)
+        bots['oneday'].changeSpeed(!bots['oneday'].speed)
         // console.log('server/changeSpeed', action.data, bots)
       } else if (action.type === 'server/updateSettings') {
-        if (!bots.hasOwnProperty(action.data.ticker)) {
-          bots[action.data.ticker] = new bot()
+        if (!bots.hasOwnProperty('oneminute')) {
+          bots['oneminute'] = new bot()
           bots['onehour'] = new bot()
           bots['oneday'] = new bot()
         }
-        bots[action.data.ticker].updateSettings(action.data.newSettings)
+        bots['oneminute'].updateSettings(action.data.newSettings)
+        bots['onehour'].updateSettings(action.data.newSettings)
+        bots['oneday'].updateSettings(action.data.newSettings)
         // console.log('server/changeSpeed', action.data, bots)
       } else if (action.type === 'server/clearLeftOver') {
-        bots[action.data].clearLeftOver()
+        //bots[action.data].clearLeftOver()
       }
     })
   })
@@ -88,7 +93,7 @@ let bot = function () {
   }
   this.updateSettings = (newSettings) => {
     this.settings = newSettings
-    console.log(this.settings)
+    // console.log(this.settings)
   }
   this.clearLeftOver = () => {
     this.orderTrend99 = []
@@ -113,7 +118,7 @@ let bot = function () {
       let last = chart[tick].close
       chartData = chart
       if (chart[tick].hasOwnProperty('isFinal') === false && i > 499) {
-        console.log('ran')
+        // console.log('ran')
         graphEma(parseFloat(chart[tick].close), Date.now(), io, action.data, last, socket, that, chartInterval)
       }
       // io.emit('botLog', 'Engage: ' + this.engage)
@@ -175,7 +180,7 @@ let bot = function () {
         closetrace3.y.push(helpers.calculateMovingAverage(close,closetrace3.y[closetrace3.y.length - 1], 25))
         closetrace4.x.push(time)
         closetrace4.y.push(helpers.calculateMovingAverage(close,closetrace4.y[closetrace4.y.length - 1], 99))
-        mapPercentage(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, io, ticker, that)
+        createIndicatorChart(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, io, ticker, that, chartInterval)
         declareTrend(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, that)
       } else {
         closetrace1.x.push(time)
@@ -186,11 +191,11 @@ let bot = function () {
         closetrace3.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
         closetrace4.x.push(time)
         closetrace4.y.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
-        mapPercentage(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, io, ticker, that)
+        createIndicatorChart(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, io, ticker, that, chartInterval)
         declareTrend(closetrace1.y, closetrace2.y, closetrace3.y, closetrace4.y, closetrace5.y, closetrace6.y, time, close, that)
       }
 
-      handleBuySell(time, close, last, ticker, that, closetrace1.x.length)
+      handleBuySell(time, close, last, ticker, that, closetrace1.x.length, chartInterval)
 
       that.profit.bought = _.sum(closetrace5.y).toFixed(2)
       that.profit.sold = _.sum(closetrace6.y).toFixed(2)
@@ -199,9 +204,9 @@ let bot = function () {
       // console.log('Total Bought:', _.sum(closetrace5.y))
       // console.log('Total Sold:', _.sum(closetrace6.y))
       // console.log('Total Profit:', parseFloat(_.sum(closetrace6.y)) - parseFloat(_.sum(closetrace5.y)))
-      console.log(closetrace1.x.length)
+      // console.log(closetrace1.x.length)
       if (closetrace1.x.length > 499) {
-        //socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: ticker, data: that.profit } })
+        socket.emit('action', { type: 'CLIENT_BOT_LOG', data: { name: `${ticker}-profit-${chartInterval}`, data: that.profit } })
         // io.emit('chart', closeData, ticker+'_Ema_Close')
         socket.emit('action', { type: 'CLIENT_GET_TICKER_CHART', data: { name: `${ticker}-${chartInterval}`, emaData: closeData } })
       }
@@ -219,39 +224,40 @@ let bot = function () {
       }
     }
 
-    let percentageTrace2Trace3 = {
+    let indicatorEma7Ema25 = {
       x: [],
       y: [],
       mode: 'markers',
-      name: '7/25'
+      name: 'Ema7/Ema25'
     }
-    let percentageTrace2Trace4 = {
+    let indicatorEma7Ema99 = {
       x: [],
       y: [],
       mode: 'markers',
-      name: '7/99'
+      name: 'Ema7/Ema99'
     }
-    let percentageTrace3Trace4 = {
+    let indicatorEma25Ema99 = {
       x: [],
       y: [],
       mode: 'markers',
-      name: '25/99'
+      name: 'Ema25/Ema99'
     }
 
-    function mapPercentage (trace1, trace2, trace3, trace4, trace5, trace6, time, close, io, ticker, that) {
-      let percentageData = [ percentageTrace2Trace3, percentageTrace2Trace4, percentageTrace3Trace4 ]
-      percentageTrace2Trace3.x.push(time)
-      percentageTrace2Trace3.y.push(parseFloat(trace2[trace2.length - 1]) / parseFloat(trace3[trace3.length - 1]) * 100)
-      percentageTrace2Trace4.x.push(time)
-      percentageTrace2Trace4.y.push(parseFloat(trace2[trace2.length - 1]) / parseFloat(trace4[trace4.length - 1]) * 100)
-      percentageTrace3Trace4.x.push(time - 0)
-      percentageTrace3Trace4.y.push(parseFloat(trace3[trace3.length - 1]) / parseFloat(trace4[trace4.length - 1]) * 100)
-      declarePercentageTrend(percentageTrace2Trace3.y, that.bluePercentageTrend)
-      declarePercentageTrend(percentageTrace2Trace4.y, that.orangePercentageTrend)
-      declarePercentageTrend(percentageTrace3Trace4.y, that.greenPercentageTrend)
+    function createIndicatorChart (trace1, trace2, trace3, trace4, trace5, trace6, time, close, io, ticker, that, chartInterval) {
+      let percentageData = [ indicatorEma7Ema25, indicatorEma7Ema99, indicatorEma25Ema99 ]
+      indicatorEma7Ema25.x.push(time)
+      indicatorEma7Ema25.y.push(parseFloat(trace2[trace2.length - 1]) / parseFloat(trace3[trace3.length - 1]) * 100)
+      indicatorEma7Ema99.x.push(time)
+      indicatorEma7Ema99.y.push(parseFloat(trace2[trace2.length - 1]) / parseFloat(trace4[trace4.length - 1]) * 100)
+      indicatorEma25Ema99.x.push(time - 0)
+      indicatorEma25Ema99.y.push(parseFloat(trace3[trace3.length - 1]) / parseFloat(trace4[trace4.length - 1]) * 100)
+      declarePercentageTrend(indicatorEma7Ema25.y, that.bluePercentageTrend)
+      declarePercentageTrend(indicatorEma7Ema99.y, that.orangePercentageTrend)
+      declarePercentageTrend(indicatorEma25Ema99.y, that.greenPercentageTrend)
       // io.emit('chart', percentageData, ticker + '_Dip_Indicator')
       if (trace1.length > 499) {
-        socket.emit('action', { type: 'CLIENT_GET_INDICATOR_CHART', data: { name: ticker, indicatorData: percentageData } })
+        // console.log(`${ticker}-indicator-chart-${chartInterval}`);
+        socket.emit('action', { type: 'CLIENT_GET_INDICATOR_CHART', data: { name: `${ticker}-indicator-chart-${chartInterval}`, indicatorData: percentageData } })
       }
     }
 
@@ -270,12 +276,27 @@ let bot = function () {
     let openOrders97 = []
     let openOrders95 = []
 
-    function handleBuySell (time, close, last, ticker, that, dataLength) {
+    function handleBuySell (time, close, last, ticker, that, dataLength, interval) {
+      let sellPoint = ''
+      let buyPoint = ''
+
+      if (interval == '1m') {
+        sellPoint = 100
+        buyPoint = 99.90
+      } else if (interval == '1h') {
+        sellPoint = 106
+        buyPoint = 98
+      } else if (interval == '4h') {
+        sellPoint = 106
+        buyPoint = 97
+      }
       let speed = helpers.setTradeSpeed(that.speed, that.settings)
+      // console.log(that.settings)
       // ***            *** \\
       //   Sell Settings    \\
       // ***            *** \\\
-      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'up' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'up' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] > 99)) {
+      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'up' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'up' && indicatorEma7Ema99.y[indicatorEma7Ema99.y.length - 1] > sellPoint)) {
+        console.log(interval, sellPoint, buyPoint)
         // sell openOrders 99
         that.orderTrend99.forEach((boughtOrder, i) => {
           if (parseFloat(parseFloat(close).toFixed(that.decimalPlace)) > parseFloat(boughtOrder) + parseFloat(that.settings.tier1MinProfit)) {
@@ -343,7 +364,7 @@ let bot = function () {
       // ***            *** \\
       //    Buy Settings    \\
       // ***            *** \\
-      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'up' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] < speed.one)) {
+      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'up' && indicatorEma7Ema99.y[indicatorEma7Ema99.y.length - 1] < buyPoint)) {
         // buy 1 qty
         if (that.orderTrend99.length < parseFloat(that.settings.tier1MaxQty)) {
           that.orderTrend99.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
@@ -356,7 +377,7 @@ let bot = function () {
           }
         }
       }
-      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'up' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] < speed.five)) {
+      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'up' && indicatorEma7Ema99.y[indicatorEma7Ema99.y.length - 1] < buyPoint)) {
         // buy 5 qty
         if (that.orderTrend97.length < parseFloat(that.settings.tier2MaxQty) - 1) {
           that.orderTrend97.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
@@ -371,7 +392,7 @@ let bot = function () {
           }
         }
       }
-      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'down' && percentageTrace2Trace3.y[percentageTrace2Trace3.y.length - 1] < speed.ten)) {
+      if (that.bluePercentageTrend[that.bluePercentageTrend.length - 1] === 'down' && (that.bluePercentageTrend[that.bluePercentageTrend.length - 2] === 'down' && indicatorEma7Ema99.y[indicatorEma7Ema99.y.length - 1] < buyPoint)) {
         // buy 10 qty
         if (that.orderTrend95.length < parseFloat(that.settings.tier3MaxQty) - 1) {
           that.orderTrend95.push(parseFloat(parseFloat(close).toFixed(that.decimalPlace)))
@@ -400,7 +421,7 @@ let bot = function () {
       // console.log('Tier 2', that.orderTrend97)
       // console.log('Tier 3', that.orderTrend95)
       if (dataLength > 499) {
-        socket.emit('action', { type: 'CLIENT_LEFTOVER_LOG', data: { name: ticker, data: leftOverLog } })
+        socket.emit('action', { type: 'CLIENT_LEFTOVER_LOG', data: { name: `${ticker}-log-${chartInterval}`, data: leftOverLog } })
       }
     }
   }

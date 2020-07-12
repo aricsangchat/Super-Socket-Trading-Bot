@@ -57,7 +57,7 @@ class NavBar extends Component {
           <span className='navbar-toggler-icon' />
         </button>
         <Link to='/' className='navbar-brand'>
-          React SSR Boilerplate
+          Binance Trading Bot
         </Link>
         {displayLinks}
       </nav>

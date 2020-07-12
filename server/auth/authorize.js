@@ -36,7 +36,7 @@ function authorize (req, res, next) {
             if (isEmpty(user)) {
               return res.status(404).json({ error: 'No such user' })
             }
-            console.log('retreived user:', user)
+            // console.log('retreived user:', user)
             req.currentUser = user
             next()
           })

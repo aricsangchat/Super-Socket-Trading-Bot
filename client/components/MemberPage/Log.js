@@ -5,7 +5,7 @@ const Log = props => {
   function renderProfitLog () {
     if (props.binance.hasOwnProperty('log')) {
       return props.binance.log.map(log => {
-        if (log.name === props.ticker) {
+        if (log.name.includes(props.ticker)) {
           return (
             <table key={log.name} className='table table-dark'>
               <thead>
@@ -31,7 +31,7 @@ const Log = props => {
   function renderLeftOverLog () {
     if (props.binance.hasOwnProperty('leftOverLog')) {
       return props.binance.leftOverLog.map(log => {
-        if (log.name === props.ticker) {
+        if (log.name.includes(props.ticker)) {
           return (
             <table key={log.name} className='table table-dark'>
               <thead>

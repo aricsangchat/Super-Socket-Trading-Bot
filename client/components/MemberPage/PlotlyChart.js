@@ -20,7 +20,7 @@ const PlotlyChart = props => {
       })
     } else if (props.type === 'indicator') {
       indicatorDataCopy.map(chart => {
-        if (chart.name.includes(props.ticker) && (chart.indicatorData[0].x.length > 499 && chart.hasOwnProperty('indicatorData'))) {
+        if (chart.name.includes(props.id) && (chart.indicatorData[0].x.length > 499 && chart.hasOwnProperty('indicatorData'))) {
           return Plotly.react(element, chart.indicatorData, chartLayout)
         }
       })
@@ -36,7 +36,6 @@ const PlotlyChart = props => {
 
 PlotlyChart.propTypes = {
   id: string,
-  ticker: string,
   type: string,
   binance: object
 }

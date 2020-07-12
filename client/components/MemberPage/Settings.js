@@ -1,6 +1,6 @@
 import React from 'react'
 import { string, func, array } from 'prop-types'
-import OnLoad from './OnLoad'
+// import OnLoad from './OnLoad'
 const Settings = props => {
   function handleSubmit (e) {
     e.preventDefault()

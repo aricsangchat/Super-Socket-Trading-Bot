@@ -8,7 +8,7 @@ import LoginGithub from './LoginGithub'
 import ShowIfLoggedOut from '../Common/ShowIfLoggedOut'
 
 const Login = props => {
-  console.log('props:', props)
+  // console.log('props:', props)
   return (
     <div>
       <ShowIfLoggedOut>

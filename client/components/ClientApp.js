@@ -18,7 +18,7 @@ const App = props => {
     if (decodedToken.exp < currentTime) {
       store.dispatch(logoutUser())
     } else {
-      console.log('ClientApp: decodedToken', decodedToken)
+      // console.log('ClientApp: decodedToken', decodedToken)
       store.dispatch(setUser(decodedToken))
     }
   } else {

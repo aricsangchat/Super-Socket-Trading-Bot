@@ -68,6 +68,6 @@ module.exports = {
       module.exports.tradeSpeedObj = helpers.setTradeSpeed(speed[1])
       module.exports.tradeSpeed = speed[1]
     }
-    console.log(command);
+    // console.log(command);
   },
 }

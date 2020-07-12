@@ -22,7 +22,7 @@ router.get('/get-all-tickers', (req, res) => {
     let usdtArr = []
 
     for (const prop in tickers) {
-      if (prop.includes('USDT')) {
+      if (prop.includes('BNBUSDT')) {
         usdtArr.push(prop)
       }
       // console.log(`obj.${prop} = ${tickers[prop]}`)

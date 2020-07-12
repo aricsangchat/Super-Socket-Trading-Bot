@@ -32,7 +32,7 @@ export function loginRequest (userData) {
         }
 
         const user = prepareUserFromToken(res.data.token)
-        console.log('user:', user)
+        // console.log('user:', user)
         dispatch(setUser(user))
         dispatch(
           displayFlashMessage({

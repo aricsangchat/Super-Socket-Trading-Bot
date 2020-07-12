@@ -21,7 +21,7 @@ const router = express.Router()
  */
 
 router.get('/', authorize, (req, res) => {
-  console.log('authorized user: ', req.currentUser)
+  // console.log('authorized user: ', req.currentUser)
   User.findOne(
     { _id: req.currentUser._id },
   )
@@ -285,7 +285,7 @@ function updateSetting (settings, newSettings) {
 }
 
 function findOneAndUpdate (id, newSettings, res) {
-  //console.log(newSettings)
+  // console.log(newSettings)
   User.findOneAndUpdate(
     { _id: id },
     { $set: { settings: newSettings } },
@@ -294,7 +294,7 @@ function findOneAndUpdate (id, newSettings, res) {
     }
   )
   .then(doc => {
-    console.log('replaced', doc)
+    // console.log('replaced', doc)
     return res.json(newSettings)
   })
   .catch(err => {
