@@ -28,7 +28,7 @@
     "all": "xfce4-terminal -H -e \"yarn run tdd\" & xfce4-terminal -H -e \"yarn run watch\" & xfce4-terminal -H -e \"yarn run server\" & xfce4-terminal -H -e \"yarn run mongo\""
   },
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.21.1",
     "babel-jest": "^22.0.4",
     "babel-polyfill": "^6.23.0",
     "bcrypt": "^1.0.2",
